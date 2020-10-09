@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import 'package:flutter_fab_dialer/flutter_fab_dialer.dart';
+import 'package:intl/date_symbol_data_local.dart';
 void main() {
   runApp(MyApp());
 }
@@ -20,13 +21,37 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
+TextEditingController _eventController;
 
+class SymptomTracker extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Second Route"),
+      ),
+      body: Center(
+        child: RaisedButton(
+          onPressed: (
+
+              ) {
+            // Navigate back to first route when tapped.
+          },
+          child: Text('Go back!'),
+        ),
+      ),
+    );
+  }
+}
 class _MyHomePageState extends State<MyHomePage> {
   CalendarController _controller;
+  Map<DateTime, List<dynamic>> _events;
+
   TextStyle dayStyle(FontWeight fontWeight)
   {
     return TextStyle(color: Color(0xff30384c), fontWeight: fontWeight);
   }
+
   Container taskList(String title, String description, IconData iconImg, Color iconColor)
   {
     return Container(
@@ -69,6 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
   {
     super.initState();
     _controller = CalendarController();
+    _eventController = TextEditingController();
+    _events = {};
   }
   @override
   void dispose()
@@ -79,7 +106,53 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _showAddDialog() {
+      showDialog(
+          context: context,
+          builder: (context)=> AlertDialog(
+            content:TextField(
+              controller: _eventController,
 
+            ),
+            actions: <Widget>[FlatButton(
+              child:Text("Save"),
+              onPressed: (){
+                if(_eventController.text.isEmpty) return;
+                setState(() {
+                  if(_events[_controller.selectedDay] != (null)){
+                    _events[_controller.selectedDay].add
+                      (_eventController.text);}else{
+                    _events[_controller.selectedDay] = [_eventController.text];
+                    }});
+                },
+            ),]
+          )
+      );
+    }
+    List<FabMiniMenuItem> _fabMiniMenuItemList = [
+      FabMiniMenuItem.withText(
+          new Icon(Icons.add),
+         
+          Colors.pink,
+          10.0,
+          "Button menu",
+          _showAddDialog,
+          "Add",
+          Colors.pink,
+          Colors.white,
+          true,
+      ),
+      FabMiniMenuItem.withText(
+          new Icon(Icons.add),
+          Colors.pink,
+          10.0,
+          "Button menu",
+          _showAddDialog,
+          "Edit",
+          Colors.pink,
+          Colors.white,
+          true
+      )];
     return Scaffold(
       body: Container(
         child: SingleChildScrollView(
@@ -87,6 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 SizedBox (height: 30,),
                   TableCalendar(
+                    events:_events,
                     startingDayOfWeek: StartingDayOfWeek.monday,
                     calendarStyle: CalendarStyle(
                       weekdayStyle: dayStyle(FontWeight.normal),
@@ -117,21 +191,25 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   child: Stack(
                     children: <Widget>[
-                    Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: <Widget>[
-                       Padding(padding: EdgeInsets.only(top:50),
-                        child: Text("Today", style: TextStyle(
-                         color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,),),
-                       ),
-                        taskList("Recording One", "Description of Recording One to be Updated Here.", CupertinoIcons.heart_solid, Color(0xff00cf8c), ),
-                       taskList("Recording Two", "Description of Recording Two to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
-                       taskList("Recording Three", "Description of Recording Three to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
-                       taskList("Recording Three", "Description of Recording Three to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
-                     ]
+                    SingleChildScrollView(
+                      child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: <Widget>[
+                         Padding(padding: EdgeInsets.only(top:50),
+                          child: Text("Today", style: TextStyle(
+                           color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,),),
+                         ),
+                          taskList("Recording One", "Description of Recording One to be Updated Here.", CupertinoIcons.heart_solid, Color(0xff00cf8c), ),
+                         taskList("Recording Two", "Description of Recording Two to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
+                         taskList("Recording Three", "Description of Recording Three to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
+                         taskList("Recording Three", "Description of Recording Three to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
+                         taskList("Recording Three", "Description of Recording Three to be Updated Here.", CupertinoIcons.heart_solid, Color(0xffff9e00)),
+
+                       ]
                    ),
+                    ),
                       Positioned(
                         bottom: 0,
                         height: 300,
@@ -154,27 +232,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         )
                       ),
                       Positioned(
-                        bottom: 40,
-                        right: 20,
-                        child: Container(
-                          padding: EdgeInsets.all((10)),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            color: Color(0xffb038f1),
-                            boxShadow: [BoxShadow(
-                            color:Colors.black38,
-                                blurRadius: 30,
-                            )]
-                          ),
-                          child: Text("+", style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 30,
-                          ),
+                        bottom: 45,
+                          left:240,
+                          child:
+
+                          new FabDialer(_fabMiniMenuItemList, Colors.pink, new Icon(Icons.add)),
 
 
                           ),
-                        ),
-                      ),
                     ]
                 )
                 )
@@ -184,4 +249,5 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
     );
   }
+
 }
